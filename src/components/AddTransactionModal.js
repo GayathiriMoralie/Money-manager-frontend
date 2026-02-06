@@ -1,7 +1,22 @@
 import { useState } from "react";
-import axios from "axios";
+import { useTransactions } from "../context/TransactionContext";
 
-const AddTransactionModal = ({ onClose, onSave, transaction }) => {
+const categories = [
+  "Fuel",
+  "Movie",
+  "Food",
+  "Loan",
+  "Medical",
+  "Rent",
+  "Salary",
+  "Others",
+];
+
+const accounts = ["Cash", "Bank", "Wallet"];
+
+export default function AddTransactionModal({ onClose, onSave, transaction }) {
+  const { addTransaction, editTransaction } = useTransactions();
+
   const isEdit = !!transaction;
 
   const [type, setType] = useState(transaction?.type || "income");
@@ -14,7 +29,7 @@ const AddTransactionModal = ({ onClose, onSave, transaction }) => {
       ? new Date(transaction.createdAt).toISOString().slice(0, 16)
       : new Date().toISOString().slice(0, 16),
     description: transaction?.description || "",
-    category: transaction?.category || "Others",
+    category: transaction?.category || categories[0],
   });
 
   const handleChange = (e) =>
@@ -36,16 +51,17 @@ const AddTransactionModal = ({ onClose, onSave, transaction }) => {
     };
 
     try {
+      let savedTransaction;
       if (isEdit) {
-        await axios.put(`${process.env.REACT_APP_API_URL}/transactions/${transaction._id}`, payload);
+        await editTransaction(transaction._id, payload);
       } else {
-        await axios.post(`${process.env.REACT_APP_API_URL}/transactions`, payload);
+        savedTransaction = await addTransaction(payload); // backend response
       }
-      if (onSave) onSave(payload);
+
+      if (onSave) onSave(savedTransaction || payload);
       onClose();
     } catch (err) {
       console.error("Error saving transaction:", err);
-      alert("Something went wrong while saving transaction.");
     }
   };
 
@@ -57,7 +73,10 @@ const AddTransactionModal = ({ onClose, onSave, transaction }) => {
           <h2 className="text-xl font-semibold">
             {isEdit ? "Edit Transaction" : "Add Transaction"}
           </h2>
-          <button onClick={onClose} className="text-xl font-bold text-gray-500 hover:text-black">
+          <button
+            onClick={onClose}
+            className="text-xl font-bold text-gray-500 hover:text-black"
+          >
             ×
           </button>
         </div>
@@ -114,8 +133,10 @@ const AddTransactionModal = ({ onClose, onSave, transaction }) => {
             onChange={handleChange}
             className="w-full rounded-lg border px-4 py-2"
           >
-            {["Fuel","Food","Movie","Loan","Medical","Salary","Rent","Others"].map((cat) => (
-              <option key={cat} value={cat}>{cat}</option>
+            {categories.map((cat) => (
+              <option key={cat} value={cat}>
+                {cat}
+              </option>
             ))}
           </select>
 
@@ -124,8 +145,10 @@ const AddTransactionModal = ({ onClose, onSave, transaction }) => {
             onChange={(e) => setAccount(e.target.value)}
             className="w-full rounded-lg border px-4 py-2"
           >
-            {["Cash","Bank","Wallet"].map((acc) => (
-              <option key={acc} value={acc}>{acc}</option>
+            {accounts.map((acc) => (
+              <option key={acc} value={acc}>
+                {acc}
+              </option>
             ))}
           </select>
 
@@ -149,14 +172,20 @@ const AddTransactionModal = ({ onClose, onSave, transaction }) => {
 
         {/* Footer */}
         <div className="mt-6 flex justify-end gap-3">
-          <button onClick={onClose} className="rounded-lg border px-4 py-2 text-sm">Cancel</button>
-          <button onClick={handleSubmit} className="rounded-lg bg-blue-600 px-6 py-2 text-sm font-medium text-white hover:bg-blue-700">
+          <button
+            onClick={onClose}
+            className="rounded-lg border px-4 py-2 text-sm"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSubmit}
+            className="rounded-lg bg-blue-600 px-6 py-2 text-sm font-medium text-white hover:bg-blue-700"
+          >
             {isEdit ? "Update" : "Save"}
           </button>
         </div>
       </div>
     </div>
   );
-};
-
-export default AddTransactionModal;
+}
