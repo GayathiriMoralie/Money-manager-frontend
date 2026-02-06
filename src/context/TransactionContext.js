@@ -11,18 +11,19 @@ export const TransactionProvider = ({ children }) => {
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Fetch transactions
-  const fetchTransactions = async () => {
-    try {
-      setLoading(true);
-      const res = await axios.get(REACT_APP_API_URL);
-      setTransactions(res.data);
-      setLoading(false);
-    } catch (err) {
-      console.error("Error fetching transactions:", err);
-      setLoading(false);
-    }
-  };
+// Fetch transactions
+const fetchTransactions = async () => {
+  try {
+    setLoading(true);
+    const res = await axios.get(API_URL); // <-- FIXED HERE
+    setTransactions(res.data);
+    setLoading(false);
+  } catch (err) {
+    console.error("Error fetching transactions:", err);
+    setLoading(false);
+  }
+};
+
 
   // Add transaction
   const addTransaction = async (transaction) => {
@@ -75,4 +76,6 @@ export const TransactionProvider = ({ children }) => {
       {children}
     </TransactionContext.Provider>
   );
+  console.log("API URL:", API_URL);
+
 };
