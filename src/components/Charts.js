@@ -6,15 +6,14 @@ function Charts() {
   let income = 0;
   let expense = 0;
 
-  transactions.forEach(t => {
-    t.type === "income"
-      ? (income += Number(t.amount))
-      : (expense += Number(t.amount));
+  transactions.forEach((t) => {
+    const amt = Number(t.amount) || 0;
+    t.type === "income" ? (income += amt) : (expense += amt);
   });
 
-  const total = income + expense;
-  const incomeWidth = total ? (income / total) * 100 : 0;
-  const expenseWidth = total ? (expense / total) * 100 : 0;
+  const total = income + expense || 1; // avoid division by zero
+  const incomeWidth = (income / total) * 100;
+  const expenseWidth = (expense / total) * 100;
 
   return (
     <div className="bg-white p-6 rounded shadow">

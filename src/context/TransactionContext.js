@@ -2,15 +2,14 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import axios from "axios";
 
 const TransactionContext = createContext();
-
-// ✅ Custom hook for easy use
 export const useTransactions = () => useContext(TransactionContext);
+
+// Make sure this includes /api/transactions
+const API_URL = process.env.REACT_APP_API_URL + "/api/transactions";
 
 export const TransactionProvider = ({ children }) => {
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
-
-const API_URL = process.env.REACT_APP_API_URL;
 
   // Fetch transactions
   const fetchTransactions = async () => {
@@ -29,6 +28,7 @@ const API_URL = process.env.REACT_APP_API_URL;
   const addTransaction = async (transaction) => {
     try {
       const res = await axios.post(API_URL, transaction);
+      // Always use backend response
       setTransactions((prev) => [res.data, ...prev]);
     } catch (err) {
       console.error("Error adding transaction:", err);
