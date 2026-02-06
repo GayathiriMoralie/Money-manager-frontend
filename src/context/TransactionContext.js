@@ -10,7 +10,7 @@ export const TransactionProvider = ({ children }) => {
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const API_URL = "http://localhost:5000/api/transactions";
+const API_URL = process.env.REACT_APP_API_URL;
 
   // Fetch transactions
   const fetchTransactions = async () => {
