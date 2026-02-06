@@ -15,7 +15,7 @@ export const TransactionProvider = ({ children }) => {
   const fetchTransactions = async () => {
     try {
       setLoading(true);
-      const res = await axios.get(API_URL);
+      const res = await axios.get(REACT_APP_API_URL);
       setTransactions(res.data);
       setLoading(false);
     } catch (err) {
