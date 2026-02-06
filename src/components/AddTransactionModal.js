@@ -1,22 +1,7 @@
 import { useState } from "react";
-import { useTransactions } from "../context/TransactionContext";
+import axios from "axios";
 
-const categories = [
-  "Fuel",
-  "Movie",
-  "Food",
-  "Loan",
-  "Medical",
-  "Rent",
-  "Salary",
-  "Others",
-];
-
-const accounts = ["Cash", "Bank", "Wallet"];
-
-export default function AddTransactionModal({ onClose, onSave, transaction }) {
-  const { addTransaction, editTransaction } = useTransactions();
-
+const AddTransactionModal = ({ onClose, onSave, transaction }) => {
   const isEdit = !!transaction;
 
   const [type, setType] = useState(transaction?.type || "income");
@@ -29,7 +14,7 @@ export default function AddTransactionModal({ onClose, onSave, transaction }) {
       ? new Date(transaction.createdAt).toISOString().slice(0, 16)
       : new Date().toISOString().slice(0, 16),
     description: transaction?.description || "",
-    category: transaction?.category || categories[0],
+    category: transaction?.category || "Others",
   });
 
   const handleChange = (e) =>
@@ -51,17 +36,16 @@ export default function AddTransactionModal({ onClose, onSave, transaction }) {
     };
 
     try {
-      let savedTransaction;
       if (isEdit) {
-        await editTransaction(transaction._id, payload);
+        await axios.put(`${process.env.REACT_APP_API_URL}/transactions/${transaction._id}`, payload);
       } else {
-        savedTransaction = await addTransaction(payload); // backend response
+        await axios.post(`${process.env.REACT_APP_API_URL}/transactions`, payload);
       }
-
-      if (onSave) onSave(savedTransaction || payload);
+      if (onSave) onSave(payload);
       onClose();
     } catch (err) {
       console.error("Error saving transaction:", err);
+      alert("Something went wrong while saving transaction.");
     }
   };
 
@@ -73,10 +57,7 @@ export default function AddTransactionModal({ onClose, onSave, transaction }) {
           <h2 className="text-xl font-semibold">
             {isEdit ? "Edit Transaction" : "Add Transaction"}
           </h2>
-          <button
-            onClick={onClose}
-            className="text-xl font-bold text-gray-500 hover:text-black"
-          >
+          <button onClick={onClose} className="text-xl font-bold text-gray-500 hover:text-black">
             ×
           </button>
         </div>
@@ -133,10 +114,8 @@ export default function AddTransactionModal({ onClose, onSave, transaction }) {
             onChange={handleChange}
             className="w-full rounded-lg border px-4 py-2"
           >
-            {categories.map((cat) => (
-              <option key={cat} value={cat}>
-                {cat}
-              </option>
+            {["Fuel","Food","Movie","Loan","Medical","Salary","Rent","Others"].map((cat) => (
+              <option key={cat} value={cat}>{cat}</option>
             ))}
           </select>
 
@@ -145,10 +124,8 @@ export default function AddTransactionModal({ onClose, onSave, transaction }) {
             onChange={(e) => setAccount(e.target.value)}
             className="w-full rounded-lg border px-4 py-2"
           >
-            {accounts.map((acc) => (
-              <option key={acc} value={acc}>
-                {acc}
-              </option>
+            {["Cash","Bank","Wallet"].map((acc) => (
+              <option key={acc} value={acc}>{acc}</option>
             ))}
           </select>
 
@@ -172,20 +149,14 @@ export default function AddTransactionModal({ onClose, onSave, transaction }) {
 
         {/* Footer */}
         <div className="mt-6 flex justify-end gap-3">
-          <button
-            onClick={onClose}
-            className="rounded-lg border px-4 py-2 text-sm"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleSubmit}
-            className="rounded-lg bg-blue-600 px-6 py-2 text-sm font-medium text-white hover:bg-blue-700"
-          >
+          <button onClick={onClose} className="rounded-lg border px-4 py-2 text-sm">Cancel</button>
+          <button onClick={handleSubmit} className="rounded-lg bg-blue-600 px-6 py-2 text-sm font-medium text-white hover:bg-blue-700">
             {isEdit ? "Update" : "Save"}
           </button>
         </div>
       </div>
     </div>
   );
-}
+};
+
+export default AddTransactionModal;
