@@ -26,15 +26,17 @@ export const TransactionProvider = ({ children }) => {
   };
 
   // Add transaction
-  const addTransaction = async (transaction) => {
-    try {
-      const res = await axios.post(API_URL, transaction);
-      setTransactions((prev) => [res.data, ...prev]);
-      return res.data; // return saved transaction for callback
-    } catch (err) {
-      console.error("Error adding transaction:", err);
-    }
-  };
+ const addTransaction = async (transaction) => {
+  try {
+    const res = await axios.post(API_URL, transaction);
+    setTransactions((prev) => [res.data, ...prev]);
+    return res.data;
+  } catch (err) {
+    console.error("Error adding transaction:", err);
+    throw err; // ✅ rethrow so your modal can catch it
+  }
+};
+
 
   // Edit transaction
   const editTransaction = async (id, updatedTransaction) => {
