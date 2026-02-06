@@ -24,35 +24,34 @@ export default function AddTransactionModal({ onClose, onSave, transaction }) {
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
 
-  const handleSubmit = async () => {
-    if (!form.amount || !form.datetime || !form.description || !form.category) {
-      alert("Please fill all fields");
-      return;
-    }
-
-    const payload = {
-      ...form,
-      amount: Number(form.amount),
-      type,
-      division,
-      account,
-      createdAt: new Date(form.datetime).toISOString(),
-    };
-
-    try {
-      let savedTransaction;
-      if (isEdit) {
-        savedTransaction = await editTransaction(transaction._id, payload);
-      } else {
-        savedTransaction = await addTransaction(payload);
-      }
-
-      if (onSave) onSave(savedTransaction);
-      onClose();
-    } catch (err) {
-      console.error("Error saving transaction:", err);
-    }
+ const handleSubmit = async () => {
+  console.log("Submitting transaction...");
+  const payload = {
+    ...form,
+    amount: Number(form.amount),
+    type,
+    division,
+    account,
+    createdAt: new Date(form.datetime).toISOString(),
   };
+  console.log(payload);
+
+  try {
+    let savedTransaction;
+    if (isEdit) {
+      savedTransaction = await editTransaction(transaction._id, payload);
+    } else {
+      savedTransaction = await addTransaction(payload);
+    }
+    console.log("Saved transaction:", savedTransaction);
+
+    if (onSave) onSave(savedTransaction);
+    onClose();
+  } catch (err) {
+    console.error("Error saving transaction:", err);
+  }
+};
+
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
