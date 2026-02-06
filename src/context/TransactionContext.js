@@ -5,7 +5,7 @@ const TransactionContext = createContext();
 export const useTransactions = () => useContext(TransactionContext);
 
 // Make sure this includes /api/transactions
-const API_URL = process.env.REACT_APP_API_URL + "/api/transactions";
+const API_URL = process.env.REACT_APP_API_URL;
 
 export const TransactionProvider = ({ children }) => {
   const [transactions, setTransactions] = useState([]);
